@@ -4,367 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>color me not</title>
-
-<style>
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: Inter, Arial, sans-serif;
-}
-
-body {
-  min-height: 100vh;
-  background: #07070a;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at center, #171720, #07070a 70%);
-  z-index: -1;
-}
-
-.screen,
-.paletteScreen {
-  width: min(92vw, 430px);
-  height: min(88vh, 760px);
-  border-radius: 34px;
-  overflow: hidden;
-  box-shadow: 0 30px 100px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-.screen {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  background: #111;
-}
-
-.screen.active {
-  display: flex;
-}
-
-.paletteScreen {
-  display: none;
-  background: #111;
-}
-
-.paletteScreen.active {
-  display: grid;
-  grid-template-columns: 60px 60px 60px 1fr;
-}
-
-.card {
-  width: 100%;
-  text-align: center;
-}
-
-h1 {
-  font-size: 58px;
-  letter-spacing: -3px;
-  margin-bottom: 14px;
-  text-transform: lowercase;
-}
-
-h2 {
-  font-size: 34px;
-  margin-bottom: 14px;
-  text-transform: lowercase;
-}
-
-p {
-  color: #b7b7c7;
-  line-height: 1.7;
-  margin-bottom: 28px;
-  text-transform: lowercase;
-}
-
-button {
-  border: none;
-  background: white;
-  color: #08080b;
-  padding: 14px 28px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 800;
-  cursor: pointer;
-  text-transform: lowercase;
-}
-
-button:hover {
-  opacity: 0.9;
-}
-
-#submitBtn,
-#nextBtn {
-  padding: 10px 18px;
-  font-size: 13px;
-}
-
-#readyScreen {
-  background: radial-gradient(circle, #1a1a22, #07070a 70%);
-}
-
-.readyText {
-  font-size: 78px;
-  font-weight: 900;
-  letter-spacing: -5px;
-  text-transform: lowercase;
-}
-
-.readySub {
-  margin-top: 10px;
-  color: #aaa;
-}
-
-#memorizeScreen {
-  position: relative;
-  transition: background 0.3s ease;
-}
-
-.timer {
-  position: absolute;
-  top: 22px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.timer,
-.roundLabel {
-  min-width: 96px;
-  height: 38px;
-  background: rgba(0,0,0,0.35);
-  padding: 0 16px;
-  border-radius: 999px;
-  font-size: 15px;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-transform: lowercase;
-}
-
-.progressOuter {
-  position: absolute;
-  top: 76px;
-  width: 82%;
-  height: 6px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.25);
-  overflow: hidden;
-}
-
-.progressInner {
-  height: 100%;
-  width: 100%;
-  background: white;
-}
-
-.roundLabel {
-  position: absolute;
-  bottom: 28px;
-}
-
-.verticalSlider {
-  position: relative;
-  height: 100%;
-  cursor: pointer;
-  touch-action: none;
-}
-
-.verticalSlider input {
-  display: none;
-}
-
-.bar {
-  position: absolute;
-  inset: 0;
-}
-
-#hueBar {
-  background: linear-gradient(to bottom, red, orange, yellow, lime, cyan, blue, magenta, red);
-}
-
-#satBar {
-  background: linear-gradient(to bottom, gray, red);
-}
-
-#brightBar {
-  background: linear-gradient(to bottom, white, red, black);
-}
-
-.knob {
-  position: absolute;
-  left: 50%;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: white;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 3px 14px rgba(0,0,0,0.35);
-  z-index: 4;
-  pointer-events: none;
-}
-
-.guessArea {
-  position: relative;
-  min-height: 100%;
-  padding: 34px 24px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.roundCounter {
-  position: absolute;
-  top: 56px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: rgba(255,255,255,0.75);
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.guessBottom {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-items: flex-start;
-}
-
-.scorePopup {
-  display: none;
-  width: 100%;
-  padding: 16px;
-  border-radius: 22px;
-  background: rgba(0,0,0,0.36);
-  border: 1px solid rgba(255,255,255,0.15);
-}
-
-.scorePopup.active {
-  display: block;
-}
-
-.compareGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.compareBlock {
-  text-align: left;
-}
-
-.compareColor {
-  height: 74px;
-  border-radius: 16px;
-  margin-bottom: 8px;
-  border: 1px solid rgba(255,255,255,0.18);
-}
-
-.compareLabel {
-  color: rgba(255,255,255,0.7);
-  font-size: 11px;
-  text-transform: lowercase;
-}
-
-.compareCode {
-  font-size: 10.5px;
-  font-weight: 700;
-  margin-top: 3px;
-  letter-spacing: 0.2px;
-  color: rgba(255,255,255,0.88);
-}
-
-.bigScore {
-  font-size: 30px;
-  font-weight: 900;
-  text-align: left;
-}
-
-.scoreRemark {
-  display: block;
-  margin-top: 4px;
-  font-size: 12px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.72);
-  letter-spacing: 0.2px;
-}
-
-.resultsGrid {
-  display: grid;
-  gap: 14px;
-  margin-top: 24px;
-  max-height: 480px;
-  overflow-y: auto;
-}
-
-.resultRow {
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 18px;
-  padding: 14px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.colorBlock {
-  height: 68px;
-  border-radius: 14px;
-}
-
-.smallText {
-  color: #aaa;
-  font-size: 11px;
-  margin-top: 7px;
-  line-height: 1.5;
-}
-
-.codeText {
-  color: white;
-  font-weight: 700;
-  font-size: 10.5px;
-  margin-top: 4px;
-  letter-spacing: 0.2px;
-}
-
-.score {
-  grid-column: 1 / -1;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.resultRemark {
-  font-size: 12px;
-  color: rgba(255,255,255,0.68);
-  margin-top: 4px;
-  font-weight: 700;
-}
-
-@media (max-width: 520px) {
-  .paletteScreen.active {
-    grid-template-columns: 54px 54px 54px 1fr;
-  }
-
-  .guessArea {
-    padding: 28px 16px;
-  }
-
-  h1 {
-    font-size: 48px;
-  }
-}
-</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2307070a'/%3E%3Ccircle cx='34' cy='38' r='16' fill='%23ff6b6b'/%3E%3Ccircle cx='62' cy='34' r='16' fill='%23ffd93d'/%3E%3Ccircle cx='52' cy='64' r='18' fill='%236bff95'/%3E%3Ctext x='50' y='58' font-size='28' text-anchor='middle' fill='white' font-family='Arial' font-weight='900'%3EC%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="./style.css" />
 </head>
 
 <body>
@@ -416,7 +57,6 @@ button:hover {
 
   <div class="guessArea" id="guessArea">
     <div class="roundCounter" id="roundCounter">1 / 5</div>
-
     <div></div>
 
     <div class="guessBottom">
@@ -495,7 +135,6 @@ function startGame() {
 
 function showReadyScreen() {
   showScreen("ready");
-
   document.getElementById("readyText").textContent = "ready?";
   document.getElementById("readySub").textContent = `round ${currentRound + 1}. see the colour and go.`;
 
@@ -525,11 +164,7 @@ function setupVerticalSlider(id, min, max) {
   slider.addEventListener("pointerdown", e => {
     updateFromPointer(e);
     slider.setPointerCapture(e.pointerId);
-
-    slider.onpointermove = moveEvent => {
-      updateFromPointer(moveEvent);
-    };
-
+    slider.onpointermove = moveEvent => updateFromPointer(moveEvent);
     slider.onpointerup = () => {
       slider.onpointermove = null;
       slider.onpointerup = null;
@@ -549,9 +184,7 @@ function generateColors(count) {
 
     const distinct = generated.every(c => rgbDistance(rgb, c.rgb) > 130);
 
-    if (distinct) {
-      generated.push({ h, s, b, rgb, hex });
-    }
+    if (distinct) generated.push({ h, s, b, rgb, hex });
   }
 
   return generated;
@@ -607,15 +240,13 @@ function updateGuessPreview() {
   const s = Number(sat.value);
   const b = Number(bright.value);
 
-  const color = `hsl(${h}, ${s}%, ${b}%)`;
-
-  document.getElementById("guessArea").style.background = color;
+  document.getElementById("guessArea").style.background = `hsl(${h}, ${s}%, ${b}%)`;
 
   document.getElementById("satBar").style.background =
     `linear-gradient(to bottom, hsl(${h}, 0%, ${b}%), hsl(${h}, 100%, ${b}%))`;
 
   document.getElementById("brightBar").style.background =
-    `linear-gradient(to bottom, white, hsl(${h}, ${s}%, 50%), black)`;
+    `linear-gradient(to bottom, black, hsl(${h}, ${s}%, 50%), white)`;
 
   moveKnob("hueKnob", h, 0, 360);
   moveKnob("satKnob", s, 0, 100);
@@ -639,14 +270,9 @@ function submitGuess() {
   const guessedH = Number(hue.value);
   const guessedS = Number(sat.value);
   const guessedB = Number(bright.value);
-
   const target = colors[currentRound];
 
-  const hueDiff = Math.min(
-    Math.abs(target.h - guessedH),
-    360 - Math.abs(target.h - guessedH)
-  );
-
+  const hueDiff = Math.min(Math.abs(target.h - guessedH), 360 - Math.abs(target.h - guessedH));
   const satDiff = Math.abs(target.s - guessedS);
   const brightDiff = Math.abs(target.b - guessedB);
 
@@ -706,9 +332,7 @@ function animateScore(targetScore) {
 
     scoreEl.textContent = `score: ${value.toFixed(2)} / 10`;
 
-    if (progress < 1) {
-      scoreAnimation = requestAnimationFrame(animate);
-    }
+    if (progress < 1) scoreAnimation = requestAnimationFrame(animate);
   }
 
   scoreAnimation = requestAnimationFrame(animate);
@@ -717,11 +341,8 @@ function animateScore(targetScore) {
 function nextRound() {
   currentRound++;
 
-  if (currentRound < TOTAL_ROUNDS) {
-    showReadyScreen();
-  } else {
-    showResults();
-  }
+  if (currentRound < TOTAL_ROUNDS) showReadyScreen();
+  else showResults();
 }
 
 function showResults() {

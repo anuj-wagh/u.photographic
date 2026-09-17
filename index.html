@@ -99,6 +99,10 @@ button {
   text-transform: lowercase;
 }
 
+button:hover {
+  opacity: 0.9;
+}
+
 #readyScreen {
   background: radial-gradient(circle, #1a1a22, #07070a 70%);
 }
@@ -160,18 +164,12 @@ button {
 .verticalSlider {
   position: relative;
   height: 100%;
+  cursor: pointer;
+  touch-action: none;
 }
 
 .verticalSlider input {
-  position: absolute;
-  inset: 0;
-  width: min(88vh, 760px);
-  height: 60px;
-  transform: rotate(-90deg) translateX(-100%);
-  transform-origin: left top;
-  opacity: 0;
-  cursor: pointer;
-  z-index: 3;
+  display: none;
 }
 
 .bar {
@@ -201,6 +199,7 @@ button {
   transform: translate(-50%, -50%);
   box-shadow: 0 3px 14px rgba(0,0,0,0.35);
   z-index: 4;
+  pointer-events: none;
 }
 
 .guessArea {
@@ -227,16 +226,6 @@ button {
   flex-direction: column;
   gap: 14px;
   align-items: flex-start;
-}
-
-.guessValue {
-  background: rgba(0,0,0,0.28);
-  padding: 10px 16px;
-  border-radius: 999px;
-  color: rgba(255,255,255,0.9);
-  font-weight: 800;
-  font-size: 14px;
-  letter-spacing: 0.5px;
 }
 
 .scorePopup {
@@ -335,10 +324,6 @@ button {
     grid-template-columns: 54px 54px 54px 1fr;
   }
 
-  .verticalSlider input {
-    height: 54px;
-  }
-
   .guessArea {
     padding: 28px 16px;
   }
@@ -403,8 +388,6 @@ button {
     <div></div>
 
     <div class="guessBottom">
-      <div class="guessValue" id="colorInfo">H120&nbsp;&nbsp;S50&nbsp;&nbsp;B50</div>
-
       <button id="submitBtn" onclick="submitGuess()">submit guess</button>
       <button id="nextBtn" onclick="nextRound()" style="display:none;">next colour</button>
 
@@ -460,9 +443,9 @@ const hue = document.getElementById("hue");
 const sat = document.getElementById("sat");
 const bright = document.getElementById("bright");
 
-[hue, sat, bright].forEach(slider => {
-  slider.addEventListener("input", updateGuessPreview);
-});
+setupVerticalSlider("hue", 0, 360);
+setupVerticalSlider("sat", 0, 100);
+setupVerticalSlider("bright", 0, 100);
 
 function showScreen(name) {
   Object.values(screens).forEach(screen => screen.classList.remove("active"));
@@ -488,6 +471,36 @@ function showReadyScreen() {
   }, 850);
 
   setTimeout(showMemorization, 1450);
+}
+
+function setupVerticalSlider(id, min, max) {
+  const input = document.getElementById(id);
+  const slider = input.closest(".verticalSlider");
+
+  function updateFromPointer(e) {
+    if (input.disabled) return;
+
+    const rect = slider.getBoundingClientRect();
+    const y = Math.min(Math.max(e.clientY - rect.top, 0), rect.height);
+    const percent = y / rect.height;
+
+    input.value = Math.round(min + percent * (max - min));
+    updateGuessPreview();
+  }
+
+  slider.addEventListener("pointerdown", e => {
+    updateFromPointer(e);
+    slider.setPointerCapture(e.pointerId);
+
+    slider.onpointermove = moveEvent => {
+      updateFromPointer(moveEvent);
+    };
+
+    slider.onpointerup = () => {
+      slider.onpointermove = null;
+      slider.onpointerup = null;
+    };
+  });
 }
 
 function generateColors(count) {
@@ -571,8 +584,6 @@ function updateGuessPreview() {
   moveKnob("hueKnob", h, 0, 360);
   moveKnob("satKnob", s, 0, 100);
   moveKnob("brightKnob", b, 0, 100);
-
-  document.getElementById("colorInfo").textContent = `H${h}  S${s}  B${b}`;
 }
 
 function moveKnob(id, value, min, max) {

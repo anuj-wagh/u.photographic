@@ -261,14 +261,16 @@ button:hover {
 
 .compareLabel {
   color: rgba(255,255,255,0.7);
-  font-size: 12px;
+  font-size: 11px;
   text-transform: lowercase;
 }
 
 .compareCode {
-  font-size: 13px;
-  font-weight: 800;
+  font-size: 10.5px;
+  font-weight: 700;
   margin-top: 3px;
+  letter-spacing: 0.2px;
+  color: rgba(255,255,255,0.88);
 }
 
 .bigScore {
@@ -302,15 +304,17 @@ button:hover {
 
 .smallText {
   color: #aaa;
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 7px;
   line-height: 1.5;
 }
 
 .codeText {
   color: white;
-  font-weight: 800;
+  font-weight: 700;
+  font-size: 10.5px;
   margin-top: 4px;
+  letter-spacing: 0.2px;
 }
 
 .score {
@@ -406,7 +410,7 @@ button:hover {
           </div>
         </div>
 
-        <div class="bigScore" id="instantScore">score: 0 / 10</div>
+        <div class="bigScore" id="instantScore">score: 0.00 / 10</div>
       </div>
     </div>
   </div>
@@ -430,6 +434,7 @@ let colors = [];
 let guesses = [];
 let currentRound = 0;
 let countdownInterval;
+let scoreAnimation;
 
 const screens = {
   start: document.getElementById("startScreen"),
@@ -561,6 +566,7 @@ function showGuessScreen() {
   document.getElementById("submitBtn").style.display = "inline-block";
   document.getElementById("nextBtn").style.display = "none";
   document.getElementById("roundCounter").textContent = `${currentRound + 1} / ${TOTAL_ROUNDS}`;
+  document.getElementById("instantScore").textContent = "score: 0.00 / 10";
 
   updateGuessPreview();
   showScreen("guess");
@@ -630,9 +636,10 @@ function submitGuess() {
   document.getElementById("submittedCompare").style.background = guessedHex;
   document.getElementById("originalCode").textContent = `H${target.h}  S${target.s}  B${target.b}`;
   document.getElementById("submittedCode").textContent = `H${guessedH}  S${guessedS}  B${guessedB}`;
-  document.getElementById("instantScore").textContent = `score: ${finalScore.toFixed(1)} / 10`;
 
   document.getElementById("scorePopup").classList.add("active");
+  animateScore(finalScore);
+
   document.getElementById("submitBtn").style.display = "none";
   document.getElementById("nextBtn").style.display = "inline-block";
   document.getElementById("nextBtn").textContent =
@@ -641,6 +648,29 @@ function submitGuess() {
   hue.disabled = true;
   sat.disabled = true;
   bright.disabled = true;
+}
+
+function animateScore(targetScore) {
+  cancelAnimationFrame(scoreAnimation);
+
+  const scoreEl = document.getElementById("instantScore");
+  const duration = 850;
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const value = targetScore * eased;
+
+    scoreEl.textContent = `score: ${value.toFixed(2)} / 10`;
+
+    if (progress < 1) {
+      scoreAnimation = requestAnimationFrame(animate);
+    }
+  }
+
+  scoreAnimation = requestAnimationFrame(animate);
 }
 
 function nextRound() {
@@ -657,7 +687,7 @@ function showResults() {
   showScreen("results");
 
   const total = guesses.reduce((sum, round) => sum + round.score, 0);
-  document.getElementById("finalScore").textContent = `${total.toFixed(1)} / 50`;
+  document.getElementById("finalScore").textContent = `${total.toFixed(2)} / 50`;
 
   const grid = document.getElementById("resultsGrid");
   grid.innerHTML = "";
@@ -684,7 +714,7 @@ function showResults() {
       </div>
 
       <div class="score">
-        round ${index + 1} · score: ${round.score.toFixed(1)} / 10
+        round ${index + 1} · score: ${round.score.toFixed(2)} / 10
       </div>
     `;
 

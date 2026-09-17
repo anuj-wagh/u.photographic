@@ -279,7 +279,10 @@ function submitGuess() {
   const hueScore = Math.max(0, 10 * (1 - hueDiff / 180));
   const satScore = Math.max(0, 10 * (1 - satDiff / 100));
   const brightScore = Math.max(0, 10 * (1 - brightDiff / 100));
-  const finalScore = (hueScore + satScore + brightScore) / 3;
+ const finalScore =
+  hueScore * 0.60 +
+  satScore * 0.25 +
+  brightScore * 0.15;
 
   const guessedRgb = hslToRgb(guessedH, guessedS, guessedB);
   const guessedHex = rgbToHex(guessedRgb.r, guessedRgb.g, guessedRgb.b);

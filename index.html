@@ -165,6 +165,7 @@ function setupVerticalSlider(id, min, max) {
     updateFromPointer(e);
     slider.setPointerCapture(e.pointerId);
     slider.onpointermove = moveEvent => updateFromPointer(moveEvent);
+
     slider.onpointerup = () => {
       slider.onpointermove = null;
       slider.onpointerup = null;
@@ -272,17 +273,22 @@ function submitGuess() {
   const guessedB = Number(bright.value);
   const target = colors[currentRound];
 
-  const hueDiff = Math.min(Math.abs(target.h - guessedH), 360 - Math.abs(target.h - guessedH));
+  const hueDiff = Math.min(
+    Math.abs(target.h - guessedH),
+    360 - Math.abs(target.h - guessedH)
+  );
+
   const satDiff = Math.abs(target.s - guessedS);
   const brightDiff = Math.abs(target.b - guessedB);
 
-  const hueScore = Math.max(0, 10 * (1 - hueDiff / 180));
-  const satScore = Math.max(0, 10 * (1 - satDiff / 100));
-  const brightScore = Math.max(0, 10 * (1 - brightDiff / 100));
- const finalScore =
-  hueScore * 0.60 +
-  satScore * 0.25 +
-  brightScore * 0.15;
+  const hueScore = Math.max(0, 10 * Math.pow(1 - hueDiff / 180, 2.4));
+  const satScore = Math.max(0, 10 * Math.pow(1 - satDiff / 100, 1.25));
+  const brightScore = Math.max(0, 10 * Math.pow(1 - brightDiff / 100, 1.1));
+
+  const finalScore =
+    hueScore * 0.72 +
+    satScore * 0.18 +
+    brightScore * 0.10;
 
   const guessedRgb = hslToRgb(guessedH, guessedS, guessedB);
   const guessedHex = rgbToHex(guessedRgb.r, guessedRgb.g, guessedRgb.b);

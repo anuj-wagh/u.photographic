@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>color me not</title>
+<title>color memory</title>
 
 <style>
 * {
@@ -286,9 +286,18 @@ button:hover {
 }
 
 .bigScore {
-  font-size: 32px;
+  font-size: 30px;
   font-weight: 900;
   text-align: left;
+}
+
+.scoreRemark {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.72);
+  letter-spacing: 0.2px;
 }
 
 .resultsGrid {
@@ -335,6 +344,13 @@ button:hover {
   font-weight: 900;
 }
 
+.resultRemark {
+  font-size: 12px;
+  color: rgba(255,255,255,0.68);
+  margin-top: 4px;
+  font-weight: 700;
+}
+
 @media (max-width: 520px) {
   .paletteScreen.active {
     grid-template-columns: 54px 54px 54px 1fr;
@@ -355,7 +371,7 @@ button:hover {
 
 <section id="startScreen" class="screen active">
   <div class="card">
-    <h1>color me not</h1>
+    <h1>color memory</h1>
     <p>
       test your color memory. you will be shown 5 colors for 5 seconds each.
       recreate each one using hue, saturation, and brightness.
@@ -423,6 +439,7 @@ button:hover {
         </div>
 
         <div class="bigScore" id="instantScore">score: 0.00 / 10</div>
+        <div class="scoreRemark" id="scoreRemark">waiting for your memory...</div>
       </div>
     </div>
   </div>
@@ -579,6 +596,7 @@ function showGuessScreen() {
   document.getElementById("nextBtn").style.display = "none";
   document.getElementById("roundCounter").textContent = `${currentRound + 1} / ${TOTAL_ROUNDS}`;
   document.getElementById("instantScore").textContent = "score: 0.00 / 10";
+  document.getElementById("scoreRemark").textContent = "waiting for your memory...";
 
   updateGuessPreview();
   showScreen("guess");
@@ -609,6 +627,14 @@ function moveKnob(id, value, min, max) {
   document.getElementById(id).style.top = `${percent * 100}%`;
 }
 
+function getScoreRemark(score) {
+  if (score >= 9) return "photographic. are you even guessing?";
+  if (score >= 8) return "insane eye. that was seriously sharp.";
+  if (score >= 5) return "almost close. you had the vibe right.";
+  if (score >= 1) return "rough memory. the colour escaped a bit.";
+  return "total colour chaos. beautiful disaster.";
+}
+
 function submitGuess() {
   const guessedH = Number(hue.value);
   const guessedS = Number(sat.value);
@@ -631,6 +657,7 @@ function submitGuess() {
 
   const guessedRgb = hslToRgb(guessedH, guessedS, guessedB);
   const guessedHex = rgbToHex(guessedRgb.r, guessedRgb.g, guessedRgb.b);
+  const remark = getScoreRemark(finalScore);
 
   guesses.push({
     target,
@@ -641,13 +668,15 @@ function submitGuess() {
       rgb: guessedRgb,
       hex: guessedHex
     },
-    score: finalScore
+    score: finalScore,
+    remark
   });
 
   document.getElementById("originalCompare").style.background = target.hex;
   document.getElementById("submittedCompare").style.background = guessedHex;
   document.getElementById("originalCode").textContent = `H${target.h}  S${target.s}  B${target.b}`;
   document.getElementById("submittedCode").textContent = `H${guessedH}  S${guessedS}  B${guessedB}`;
+  document.getElementById("scoreRemark").textContent = remark;
 
   document.getElementById("scorePopup").classList.add("active");
   animateScore(finalScore);
@@ -727,6 +756,7 @@ function showResults() {
 
       <div class="score">
         round ${index + 1} · score: ${round.score.toFixed(2)} / 10
+        <div class="resultRemark">${round.remark}</div>
       </div>
     `;
 

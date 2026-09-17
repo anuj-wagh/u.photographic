@@ -19,39 +19,64 @@ body {
   background: #07070a;
   color: white;
   overflow-x: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #171720, #07070a 70%);
+  z-index: -1;
+}
+
+.screen,
+.paletteScreen {
+  width: min(92vw, 430px);
+  height: min(88vh, 760px);
+  border-radius: 34px;
+  overflow: hidden;
+  box-shadow: 0 30px 100px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 .screen {
-  min-height: 100vh;
   display: none;
   align-items: center;
   justify-content: center;
   padding: 24px;
+  background: #111;
 }
 
 .screen.active {
   display: flex;
 }
 
+.paletteScreen {
+  display: none;
+  background: #111;
+}
+
+.paletteScreen.active {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 1fr;
+}
+
 .card {
   width: 100%;
-  max-width: 760px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 32px;
-  padding: 38px;
   text-align: center;
-  box-shadow: 0 30px 90px rgba(0,0,0,0.45);
 }
 
 h1 {
-  font-size: clamp(42px, 8vw, 78px);
+  font-size: clamp(42px, 8vw, 72px);
   letter-spacing: -3px;
   margin-bottom: 14px;
 }
 
 h2 {
-  font-size: clamp(28px, 5vw, 44px);
+  font-size: 34px;
   margin-bottom: 14px;
 }
 
@@ -72,16 +97,12 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
-}
-
 #readyScreen {
   background: radial-gradient(circle, #1a1a22, #07070a 70%);
 }
 
 .readyText {
-  font-size: clamp(56px, 12vw, 130px);
+  font-size: 78px;
   font-weight: 900;
   letter-spacing: -5px;
 }
@@ -97,7 +118,7 @@ button:hover {
 }
 
 .timer {
-  position: fixed;
+  position: absolute;
   top: 22px;
   left: 50%;
   transform: translateX(-50%);
@@ -109,9 +130,9 @@ button:hover {
 }
 
 .progressOuter {
-  position: fixed;
+  position: absolute;
   top: 76px;
-  width: min(440px, 82vw);
+  width: 82%;
   height: 6px;
   border-radius: 999px;
   background: rgba(255,255,255,0.25);
@@ -125,35 +146,24 @@ button:hover {
 }
 
 .roundLabel {
-  position: fixed;
+  position: absolute;
   bottom: 28px;
   background: rgba(0,0,0,0.35);
   padding: 10px 18px;
   border-radius: 999px;
 }
 
-.paletteScreen {
-  min-height: 100vh;
-  display: none;
-  background: #111;
-}
-
-.paletteScreen.active {
-  display: grid;
-  grid-template-columns: 60px 60px 60px 1fr;
-}
-
 .verticalSlider {
   position: relative;
-  height: 100vh;
+  height: 100%;
 }
 
 .verticalSlider input {
   position: absolute;
   inset: 0;
-  width: 100vh;
+  width: min(88vh, 760px);
   height: 60px;
-  transform: rotate(-90deg) translateX(-100vh);
+  transform: rotate(-90deg) translateX(-100%);
   transform-origin: left top;
   opacity: 0;
   cursor: pointer;
@@ -166,17 +176,7 @@ button:hover {
 }
 
 #hueBar {
-  background: linear-gradient(
-    to bottom,
-    red,
-    orange,
-    yellow,
-    lime,
-    cyan,
-    blue,
-    magenta,
-    red
-  );
+  background: linear-gradient(to bottom, red, orange, yellow, lime, cyan, blue, magenta, red);
 }
 
 #satBar {
@@ -201,8 +201,8 @@ button:hover {
 
 .guessArea {
   position: relative;
-  min-height: 100vh;
-  padding: 34px;
+  min-height: 100%;
+  padding: 34px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -213,30 +213,30 @@ button:hover {
   top: 56px;
   left: 50%;
   transform: translateX(-50%);
-  color: rgba(255,255,255,0.7);
+  color: rgba(255,255,255,0.75);
   font-size: 22px;
   font-weight: 800;
-  letter-spacing: 1px;
 }
 
 .guessBottom {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   align-items: flex-start;
 }
 
-.guessHex {
-  background: rgba(0,0,0,0.25);
+.guessValue {
+  background: rgba(0,0,0,0.28);
   padding: 10px 16px;
   border-radius: 999px;
-  color: rgba(255,255,255,0.8);
+  color: rgba(255,255,255,0.88);
+  font-weight: 700;
+  font-size: 14px;
 }
 
 .scorePopup {
   display: none;
   width: 100%;
-  max-width: 420px;
   padding: 18px;
   border-radius: 22px;
   background: rgba(0,0,0,0.32);
@@ -256,7 +256,7 @@ button:hover {
 .breakdown {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 9px;
 }
 
 .breakdownBox {
@@ -268,63 +268,60 @@ button:hover {
 
 .breakdownBox strong {
   display: block;
-  font-size: 20px;
+  font-size: 19px;
 }
 
 .breakdownBox span {
   color: rgba(255,255,255,0.65);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .resultsGrid {
   display: grid;
-  gap: 18px;
-  margin-top: 28px;
+  gap: 14px;
+  margin-top: 24px;
+  max-height: 480px;
+  overflow-y: auto;
 }
 
 .resultRow {
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 20px;
-  padding: 16px;
+  border-radius: 18px;
+  padding: 14px;
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 14px;
-  align-items: center;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
 }
 
 .colorBlock {
-  height: 72px;
-  border-radius: 15px;
+  height: 68px;
+  border-radius: 14px;
 }
 
 .smallText {
   color: #aaa;
-  font-size: 13px;
+  font-size: 12px;
   margin-top: 7px;
 }
 
 .score {
-  font-size: 18px;
+  grid-column: 1 / -1;
+  font-size: 16px;
   font-weight: 900;
-  white-space: nowrap;
 }
 
-@media (max-width: 650px) {
+@media (max-width: 520px) {
   .paletteScreen.active {
-    grid-template-columns: 60px 60px 60px 1fr;
+    grid-template-columns: 54px 54px 54px 1fr;
+  }
+
+  .verticalSlider input {
+    height: 54px;
   }
 
   .guessArea {
-    padding: 24px 18px;
-  }
-
-  .roundCounter {
-    font-size: 18px;
-  }
-
-  .resultRow {
-    grid-template-columns: 1fr;
+    padding: 28px 16px;
   }
 }
 </style>
@@ -336,15 +333,15 @@ button:hover {
   <div class="card">
     <h1>color memory</h1>
     <p>
-      test your color memory. you will be shown 5 colors one by one for 5 seconds.
-      then recreate each color using hue, saturation, and brightness.
+      test your color memory. you will be shown 5 colors for 5 seconds each.
+      recreate each one using hue, saturation, and brightness.
     </p>
     <button onclick="startGame()">start game</button>
   </div>
 </section>
 
 <section id="readyScreen" class="screen">
-  <div>
+  <div class="card">
     <div class="readyText" id="readyText">ready?</div>
     <p class="readySub" id="readySub">see the colour. remember it.</p>
   </div>
@@ -383,7 +380,7 @@ button:hover {
     <div></div>
 
     <div class="guessBottom">
-      <div class="guessHex" id="hexInfo">#408040</div>
+      <div class="guessValue" id="colorInfo">h 120° &nbsp; s 50% &nbsp; b 50%</div>
 
       <button id="submitBtn" onclick="submitGuess()">submit guess</button>
       <button id="nextBtn" onclick="nextRound()" style="display:none;">next colour</button>
@@ -458,6 +455,7 @@ function startGame() {
 
 function showReadyScreen() {
   showScreen("ready");
+
   document.getElementById("readyText").textContent = "ready?";
   document.getElementById("readySub").textContent = `round ${currentRound + 1}. see the colour and go.`;
 
@@ -538,11 +536,12 @@ function updateGuessPreview() {
   const b = Number(bright.value);
 
   const color = `hsl(${h}, ${s}%, ${b}%)`;
-  const pureHue = `hsl(${h}, 100%, 50%)`;
 
   document.getElementById("guessArea").style.background = color;
+
   document.getElementById("satBar").style.background =
     `linear-gradient(to bottom, hsl(${h}, 0%, ${b}%), hsl(${h}, 100%, ${b}%))`;
+
   document.getElementById("brightBar").style.background =
     `linear-gradient(to bottom, white, hsl(${h}, ${s}%, 50%), black)`;
 
@@ -550,8 +549,8 @@ function updateGuessPreview() {
   moveKnob("satKnob", s, 0, 100);
   moveKnob("brightKnob", b, 0, 100);
 
-  const rgb = hslToRgb(h, s, b);
-  document.getElementById("hexInfo").textContent = rgbToHex(rgb.r, rgb.g, rgb.b);
+  document.getElementById("colorInfo").innerHTML =
+    `h ${h}° &nbsp; s ${s}% &nbsp; b ${b}%`;
 }
 
 function moveKnob(id, value, min, max) {
@@ -602,8 +601,8 @@ function submitGuess() {
   document.getElementById("hueScore").textContent = hueScore.toFixed(1);
   document.getElementById("satScore").textContent = satScore.toFixed(1);
   document.getElementById("brightScore").textContent = brightScore.toFixed(1);
-  document.getElementById("scorePopup").classList.add("active");
 
+  document.getElementById("scorePopup").classList.add("active");
   document.getElementById("submitBtn").style.display = "none";
   document.getElementById("nextBtn").style.display = "inline-block";
   document.getElementById("nextBtn").textContent =
@@ -640,21 +639,26 @@ function showResults() {
     row.innerHTML = `
       <div>
         <div class="colorBlock" style="background:${round.target.hex}"></div>
-        <div class="smallText">target ${round.target.hex}</div>
+        <div class="smallText">
+          target<br>
+          h ${round.target.h}° s ${round.target.s}% b ${round.target.b}%
+        </div>
       </div>
 
       <div>
         <div class="colorBlock" style="background:${round.guess.hex}"></div>
-        <div class="smallText">your guess ${round.guess.hex}</div>
+        <div class="smallText">
+          yours<br>
+          h ${round.guess.h}° s ${round.guess.s}% b ${round.guess.b}%
+        </div>
       </div>
 
       <div class="score">
-        round ${index + 1}<br>
-        ${round.score.toFixed(1)} / 10
+        round ${index + 1} · ${round.score.toFixed(1)} / 10
         <div class="smallText">
-          h: ${round.breakdown.hue.toFixed(1)} |
-          s: ${round.breakdown.saturation.toFixed(1)} |
-          b: ${round.breakdown.brightness.toFixed(1)}
+          h ${round.breakdown.hue.toFixed(1)} ·
+          s ${round.breakdown.saturation.toFixed(1)} ·
+          b ${round.breakdown.brightness.toFixed(1)}
         </div>
       </div>
     `;

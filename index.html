@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>color memory</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Inter, Arial, sans-serif;
+  text-transform: lowercase;
+}
+
+body {
+  min-height: 100vh;
+  background: #07070a;
+  color: white;
+  overflow-x: hidden;
+}
+
+.screen {
+  min-height: 100vh;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.screen.active {
+  display: flex;
+}
+
+.card {
+  width: 100%;
+  max-width: 760px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 32px;
+  padding: 38px;
+  text-align: center;
+  box-shadow: 0 30px 90px rgba(0,0,0,0.45);
+}
+
+h1 {
+  font-size: clamp(42px, 8vw, 78px);
+  letter-spacing: -3px;
+  margin-bottom: 14px;
+}
+
+h2 {
+  font-size: clamp(28px, 5vw, 44px);
+  margin-bottom: 14px;
+}
+
+p {
+  color: #b7b7c7;
+  line-height: 1.7;
+  margin-bottom: 28px;
+}
+
+button {
+  border: none;
+  background: white;
+  color: #08080b;
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#readyScreen {
+  background: radial-gradient(circle, #1a1a22, #07070a 70%);
+}
+
+.readyText {
+  font-size: clamp(56px, 12vw, 130px);
+  font-weight: 900;
+  letter-spacing: -5px;
+}
+
+.readySub {
+  margin-top: 10px;
+  color: #aaa;
+}
+
+#memorizeScreen {
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.timer {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.38);
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 24px;
+  font-weight: 900;
+}
+
+.progressOuter {
+  position: fixed;
+  top: 76px;
+  width: min(440px, 82vw);
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.25);
+  overflow: hidden;
+}
+
+.progressInner {
+  height: 100%;
+  width: 100%;
+  background: white;
+}
+
+.roundLabel {
+  position: fixed;
+  bottom: 28px;
+  background: rgba(0,0,0,0.35);
+  padding: 10px 18px;
+  border-radius: 999px;
+}
+
+.paletteScreen {
+  min-height: 100vh;
+  display: none;
+  background: #111;
+}
+
+.paletteScreen.active {
+  display: grid;
+  grid-template-columns: 60px 60px 60px 1fr;
+}
+
+.verticalSlider {
+  position: relative;
+  height: 100vh;
+}
+
+.verticalSlider input {
+  position: absolute;
+  inset: 0;
+  width: 100vh;
+  height: 60px;
+  transform: rotate(-90deg) translateX(-100vh);
+  transform-origin: left top;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.bar {
+  position: absolute;
+  inset: 0;
+}
+
+#hueBar {
+  background: linear-gradient(
+    to bottom,
+    red,
+    orange,
+    yellow,
+    lime,
+    cyan,
+    blue,
+    magenta,
+    red
+  );
+}
+
+#satBar {
+  background: linear-gradient(to bottom, gray, red);
+}
+
+#brightBar {
+  background: linear-gradient(to bottom, white, red, black);
+}
+
+.knob {
+  position: absolute;
+  left: 50%;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: white;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 3px 14px rgba(0,0,0,0.35);
+  z-index: 4;
+}
+
+.guessArea {
+  position: relative;
+  min-height: 100vh;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.roundCounter {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.7);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.guessBottom {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.guessHex {
+  background: rgba(0,0,0,0.25);
+  padding: 10px 16px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.8);
+}
+
+.scorePopup {
+  display: none;
+  width: 100%;
+  max-width: 420px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(0,0,0,0.32);
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.scorePopup.active {
+  display: block;
+}
+
+.bigScore {
+  font-size: 38px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.breakdownBox {
+  background: rgba(255,255,255,0.12);
+  border-radius: 14px;
+  padding: 10px;
+  text-align: center;
+}
+
+.breakdownBox strong {
+  display: block;
+  font-size: 20px;
+}
+
+.breakdownBox span {
+  color: rgba(255,255,255,0.65);
+  font-size: 12px;
+}
+
+.resultsGrid {
+  display: grid;
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.resultRow {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 20px;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.colorBlock {
+  height: 72px;
+  border-radius: 15px;
+}
+
+.smallText {
+  color: #aaa;
+  font-size: 13px;
+  margin-top: 7px;
+}
+
+.score {
+  font-size: 18px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@media (max-width: 650px) {
+  .paletteScreen.active {
+    grid-template-columns: 60px 60px 60px 1fr;
+  }
+
+  .guessArea {
+    padding: 24px 18px;
+  }
+
+  .roundCounter {
+    font-size: 18px;
+  }
+
+  .resultRow {
+    grid-template-columns: 1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<section id="startScreen" class="screen active">
+  <div class="card">
+    <h1>color memory</h1>
+    <p>
+      test your color memory. you will be shown 5 colors one by one for 5 seconds.
+      then recreate each color using hue, saturation, and brightness.
+    </p>
+    <button onclick="startGame()">start game</button>
+  </div>
+</section>
+
+<section id="readyScreen" class="screen">
+  <div>
+    <div class="readyText" id="readyText">ready?</div>
+    <p class="readySub" id="readySub">see the colour. remember it.</p>
+  </div>
+</section>
+
+<section id="memorizeScreen" class="screen">
+  <div class="timer" id="timer">5.00</div>
+  <div class="progressOuter">
+    <div class="progressInner" id="progressInner"></div>
+  </div>
+  <div class="roundLabel" id="memorizeRound">round 1 / 5</div>
+</section>
+
+<section id="guessScreen" class="paletteScreen">
+  <div class="verticalSlider">
+    <div class="bar" id="hueBar"></div>
+    <div class="knob" id="hueKnob"></div>
+    <input type="range" id="hue" min="0" max="360" value="120">
+  </div>
+
+  <div class="verticalSlider">
+    <div class="bar" id="satBar"></div>
+    <div class="knob" id="satKnob"></div>
+    <input type="range" id="sat" min="0" max="100" value="50">
+  </div>
+
+  <div class="verticalSlider">
+    <div class="bar" id="brightBar"></div>
+    <div class="knob" id="brightKnob"></div>
+    <input type="range" id="bright" min="0" max="100" value="50">
+  </div>
+
+  <div class="guessArea" id="guessArea">
+    <div class="roundCounter" id="roundCounter">1 / 5</div>
+
+    <div></div>
+
+    <div class="guessBottom">
+      <div class="guessHex" id="hexInfo">#408040</div>
+
+      <button id="submitBtn" onclick="submitGuess()">submit guess</button>
+      <button id="nextBtn" onclick="nextRound()" style="display:none;">next colour</button>
+
+      <div class="scorePopup" id="scorePopup">
+        <div class="bigScore" id="instantScore">0 / 10</div>
+        <div class="breakdown">
+          <div class="breakdownBox">
+            <strong id="hueScore">0</strong>
+            <span>hue</span>
+          </div>
+          <div class="breakdownBox">
+            <strong id="satScore">0</strong>
+            <span>saturation</span>
+          </div>
+          <div class="breakdownBox">
+            <strong id="brightScore">0</strong>
+            <span>brightness</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="resultsScreen" class="screen">
+  <div class="card">
+    <h2>final score</h2>
+    <h1 id="finalScore">0 / 50</h1>
+    <div class="resultsGrid" id="resultsGrid"></div>
+    <br>
+    <button onclick="startGame()">play again</button>
+  </div>
+</section>
+
+<script>
+const TOTAL_ROUNDS = 5;
+const DISPLAY_TIME = 5000;
+
+let colors = [];
+let guesses = [];
+let currentRound = 0;
+let countdownInterval;
+
+const screens = {
+  start: document.getElementById("startScreen"),
+  ready: document.getElementById("readyScreen"),
+  memorize: document.getElementById("memorizeScreen"),
+  guess: document.getElementById("guessScreen"),
+  results: document.getElementById("resultsScreen")
+};
+
+const hue = document.getElementById("hue");
+const sat = document.getElementById("sat");
+const bright = document.getElementById("bright");
+
+[hue, sat, bright].forEach(slider => {
+  slider.addEventListener("input", updateGuessPreview);
+});
+
+function showScreen(name) {
+  Object.values(screens).forEach(screen => screen.classList.remove("active"));
+  screens[name].classList.add("active");
+}
+
+function startGame() {
+  colors = generateColors(TOTAL_ROUNDS);
+  guesses = [];
+  currentRound = 0;
+  showReadyScreen();
+}
+
+function showReadyScreen() {
+  showScreen("ready");
+  document.getElementById("readyText").textContent = "ready?";
+  document.getElementById("readySub").textContent = `round ${currentRound + 1}. see the colour and go.`;
+
+  setTimeout(() => {
+    document.getElementById("readyText").textContent = "go";
+    document.getElementById("readySub").textContent = "memorize.";
+  }, 850);
+
+  setTimeout(showMemorization, 1450);
+}
+
+function generateColors(count) {
+  const generated = [];
+
+  while (generated.length < count) {
+    const h = Math.floor(Math.random() * 360);
+    const s = 60 + Math.floor(Math.random() * 35);
+    const b = 38 + Math.floor(Math.random() * 32);
+    const rgb = hslToRgb(h, s, b);
+    const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
+
+    const distinct = generated.every(c => rgbDistance(rgb, c.rgb) > 130);
+
+    if (distinct) {
+      generated.push({ h, s, b, rgb, hex });
+    }
+  }
+
+  return generated;
+}
+
+function showMemorization() {
+  const color = colors[currentRound];
+
+  showScreen("memorize");
+  screens.memorize.style.background = color.hex;
+  document.getElementById("memorizeRound").textContent = `round ${currentRound + 1} / ${TOTAL_ROUNDS}`;
+
+  let start = performance.now();
+  clearInterval(countdownInterval);
+
+  countdownInterval = setInterval(() => {
+    const elapsed = performance.now() - start;
+    const remaining = Math.max(0, DISPLAY_TIME - elapsed);
+    const progress = remaining / DISPLAY_TIME;
+
+    document.getElementById("timer").textContent = (remaining / 1000).toFixed(2);
+    document.getElementById("progressInner").style.width = `${progress * 100}%`;
+
+    if (remaining <= 0) {
+      clearInterval(countdownInterval);
+      showGuessScreen();
+    }
+  }, 20);
+}
+
+function showGuessScreen() {
+  hue.value = 120;
+  sat.value = 50;
+  bright.value = 50;
+
+  hue.disabled = false;
+  sat.disabled = false;
+  bright.disabled = false;
+
+  document.getElementById("scorePopup").classList.remove("active");
+  document.getElementById("submitBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").style.display = "none";
+  document.getElementById("roundCounter").textContent = `${currentRound + 1} / ${TOTAL_ROUNDS}`;
+
+  updateGuessPreview();
+  showScreen("guess");
+}
+
+function updateGuessPreview() {
+  const h = Number(hue.value);
+  const s = Number(sat.value);
+  const b = Number(bright.value);
+
+  const color = `hsl(${h}, ${s}%, ${b}%)`;
+  const pureHue = `hsl(${h}, 100%, 50%)`;
+
+  document.getElementById("guessArea").style.background = color;
+  document.getElementById("satBar").style.background =
+    `linear-gradient(to bottom, hsl(${h}, 0%, ${b}%), hsl(${h}, 100%, ${b}%))`;
+  document.getElementById("brightBar").style.background =
+    `linear-gradient(to bottom, white, hsl(${h}, ${s}%, 50%), black)`;
+
+  moveKnob("hueKnob", h, 0, 360);
+  moveKnob("satKnob", s, 0, 100);
+  moveKnob("brightKnob", b, 0, 100);
+
+  const rgb = hslToRgb(h, s, b);
+  document.getElementById("hexInfo").textContent = rgbToHex(rgb.r, rgb.g, rgb.b);
+}
+
+function moveKnob(id, value, min, max) {
+  const percent = (value - min) / (max - min);
+  document.getElementById(id).style.top = `${percent * 100}%`;
+}
+
+function submitGuess() {
+  const guessedH = Number(hue.value);
+  const guessedS = Number(sat.value);
+  const guessedB = Number(bright.value);
+
+  const target = colors[currentRound];
+
+  const hueDiff = Math.min(
+    Math.abs(target.h - guessedH),
+    360 - Math.abs(target.h - guessedH)
+  );
+
+  const satDiff = Math.abs(target.s - guessedS);
+  const brightDiff = Math.abs(target.b - guessedB);
+
+  const hueScore = Math.max(0, 10 * (1 - hueDiff / 180));
+  const satScore = Math.max(0, 10 * (1 - satDiff / 100));
+  const brightScore = Math.max(0, 10 * (1 - brightDiff / 100));
+  const finalScore = (hueScore + satScore + brightScore) / 3;
+
+  const guessedRgb = hslToRgb(guessedH, guessedS, guessedB);
+
+  guesses.push({
+    target,
+    guess: {
+      h: guessedH,
+      s: guessedS,
+      b: guessedB,
+      rgb: guessedRgb,
+      hex: rgbToHex(guessedRgb.r, guessedRgb.g, guessedRgb.b)
+    },
+    score: finalScore,
+    breakdown: {
+      hue: hueScore,
+      saturation: satScore,
+      brightness: brightScore
+    }
+  });
+
+  document.getElementById("instantScore").textContent = `${finalScore.toFixed(1)} / 10`;
+  document.getElementById("hueScore").textContent = hueScore.toFixed(1);
+  document.getElementById("satScore").textContent = satScore.toFixed(1);
+  document.getElementById("brightScore").textContent = brightScore.toFixed(1);
+  document.getElementById("scorePopup").classList.add("active");
+
+  document.getElementById("submitBtn").style.display = "none";
+  document.getElementById("nextBtn").style.display = "inline-block";
+  document.getElementById("nextBtn").textContent =
+    currentRound === TOTAL_ROUNDS - 1 ? "see results" : "next colour";
+
+  hue.disabled = true;
+  sat.disabled = true;
+  bright.disabled = true;
+}
+
+function nextRound() {
+  currentRound++;
+
+  if (currentRound < TOTAL_ROUNDS) {
+    showReadyScreen();
+  } else {
+    showResults();
+  }
+}
+
+function showResults() {
+  showScreen("results");
+
+  const total = guesses.reduce((sum, round) => sum + round.score, 0);
+  document.getElementById("finalScore").textContent = `${total.toFixed(1)} / 50`;
+
+  const grid = document.getElementById("resultsGrid");
+  grid.innerHTML = "";
+
+  guesses.forEach((round, index) => {
+    const row = document.createElement("div");
+    row.className = "resultRow";
+
+    row.innerHTML = `
+      <div>
+        <div class="colorBlock" style="background:${round.target.hex}"></div>
+        <div class="smallText">target ${round.target.hex}</div>
+      </div>
+
+      <div>
+        <div class="colorBlock" style="background:${round.guess.hex}"></div>
+        <div class="smallText">your guess ${round.guess.hex}</div>
+      </div>
+
+      <div class="score">
+        round ${index + 1}<br>
+        ${round.score.toFixed(1)} / 10
+        <div class="smallText">
+          h: ${round.breakdown.hue.toFixed(1)} |
+          s: ${round.breakdown.saturation.toFixed(1)} |
+          b: ${round.breakdown.brightness.toFixed(1)}
+        </div>
+      </div>
+    `;
+
+    grid.appendChild(row);
+  });
+}
+
+function rgbDistance(a, b) {
+  return Math.sqrt(
+    Math.pow(a.r - b.r, 2) +
+    Math.pow(a.g - b.g, 2) +
+    Math.pow(a.b - b.b, 2)
+  );
+}
+
+function hslToRgb(h, s, l) {
+  s /= 100;
+  l /= 100;
+
+  const c = (1 - Math.abs(2 * l - 1)) * s;
+  const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+  const m = l - c / 2;
+
+  let r = 0, g = 0, b = 0;
+
+  if (h < 60) [r, g, b] = [c, x, 0];
+  else if (h < 120) [r, g, b] = [x, c, 0];
+  else if (h < 180) [r, g, b] = [0, c, x];
+  else if (h < 240) [r, g, b] = [0, x, c];
+  else if (h < 300) [r, g, b] = [x, 0, c];
+  else [r, g, b] = [c, 0, x];
+
+  return {
+    r: Math.round((r + m) * 255),
+    g: Math.round((g + m) * 255),
+    b: Math.round((b + m) * 255)
+  };
+}
+
+function rgbToHex(r, g, b) {
+  return "#" + [r, g, b]
+    .map(v => v.toString(16).padStart(2, "0"))
+    .join("")
+    .toUpperCase();
+}
+</script>
+
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>color memory</title>
+<title>color me not</title>
 
 <style>
 * {
@@ -103,6 +103,12 @@ button:hover {
   opacity: 0.9;
 }
 
+#submitBtn,
+#nextBtn {
+  padding: 10px 18px;
+  font-size: 13px;
+}
+
 #readyScreen {
   background: radial-gradient(circle, #1a1a22, #07070a 70%);
 }
@@ -129,11 +135,21 @@ button:hover {
   top: 22px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.38);
-  padding: 10px 20px;
+}
+
+.timer,
+.roundLabel {
+  min-width: 96px;
+  height: 38px;
+  background: rgba(0,0,0,0.35);
+  padding: 0 16px;
   border-radius: 999px;
-  font-size: 24px;
-  font-weight: 900;
+  font-size: 15px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-transform: lowercase;
 }
 
 .progressOuter {
@@ -155,10 +171,6 @@ button:hover {
 .roundLabel {
   position: absolute;
   bottom: 28px;
-  background: rgba(0,0,0,0.35);
-  padding: 10px 18px;
-  border-radius: 999px;
-  text-transform: lowercase;
 }
 
 .verticalSlider {
@@ -343,7 +355,7 @@ button:hover {
 
 <section id="startScreen" class="screen active">
   <div class="card">
-    <h1>color memory</h1>
+    <h1>color me not</h1>
     <p>
       test your color memory. you will be shown 5 colors for 5 seconds each.
       recreate each one using hue, saturation, and brightness.
